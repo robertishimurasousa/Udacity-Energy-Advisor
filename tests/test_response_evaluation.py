@@ -38,9 +38,9 @@ class ResponseEvaluationTests(TestCase):
         incomplete = self.evaluate(question, answer, expectation)
         complete = self.evaluate(question, answer + " See tip_battery_storage.txt.", expectation)
 
-        self.assertEqual(incomplete["scores"], {"accuracy": 2, "relevance": 2, "completeness": 0, "usefulness": 2})
+        self.assertEqual(incomplete["scores"], {"accuracy": 1.0, "relevance": 1.0, "completeness": 0.0, "usefulness": 1.0})
         self.assertIn("Cites the battery guide", incomplete["feedback"])
-        self.assertTrue(all(score == 2 for score in complete["scores"].values()))
+        self.assertTrue(all(score == 1.0 for score in complete["scores"].values()))
         self.assertFalse(any(self.evaluate(question, "", expectation)["scores"].values()))
 
     def test_distinguishes_no_recorded_usage_from_zero_consumption(self):
@@ -55,5 +55,20 @@ class ResponseEvaluationTests(TestCase):
         question = "How much energy was used on October 19?"
         missing = self.evaluate(question, "There is no recorded electricity usage on October 19.", expectation)
         measured = self.evaluate(question, "No electricity was used. The total was 0 kWh on October 19.", expectation)
-        self.assertEqual(missing["scores"]["accuracy"], 2)
+        self.assertEqual(missing["scores"]["accuracy"], 1.0)
         self.assertEqual(measured["scores"]["accuracy"], 0)
+
+    def test_partial_credit_and_feedback_use_the_normalized_scale(self):
+        checks = {
+            criterion: [("Four-hour estimate", r"\b4 hours\b", True)]
+            for criterion in ("accuracy", "relevance", "completeness", "usefulness")
+        }
+        checks["accuracy"].append(("Steady 1 kW", r"\b1 kW\b", True))
+        result = self.evaluate(
+            "How long can the battery last?",
+            "It can last 4 hours.",
+            {"description": "Include the load and duration.", "checks": checks},
+        )
+        self.assertEqual(result["scores"]["accuracy"], 0.5)
+        self.assertIn("Accuracy 0.50", result["feedback"])
+        self.assertIn("Steady 1 kW", result["feedback"])
