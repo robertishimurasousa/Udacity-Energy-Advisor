@@ -92,24 +92,38 @@ class DatabaseManager:
         finally:
             session.close()
     
-    def get_usage_by_date_range(self, start_date: datetime, end_date: datetime):
-        """Get energy usage records within date range"""
+    def get_usage_by_date_range(
+        self, start_date: datetime, end_date: datetime, *, end_inclusive: bool = True
+    ):
+        """Get energy usage records with an optional exclusive end timestamp."""
+        end_filter = (
+            EnergyUsage.timestamp <= end_date
+            if end_inclusive
+            else EnergyUsage.timestamp < end_date
+        )
         session = self.get_session()
         try:
             return session.query(EnergyUsage).filter(
                 EnergyUsage.timestamp >= start_date,
-                EnergyUsage.timestamp <= end_date
+                end_filter,
             ).order_by(EnergyUsage.timestamp).all()
         finally:
             session.close()
     
-    def get_generation_by_date_range(self, start_date: datetime, end_date: datetime):
-        """Get solar generation records within date range"""
+    def get_generation_by_date_range(
+        self, start_date: datetime, end_date: datetime, *, end_inclusive: bool = True
+    ):
+        """Get solar generation records with an optional exclusive end timestamp."""
+        end_filter = (
+            SolarGeneration.timestamp <= end_date
+            if end_inclusive
+            else SolarGeneration.timestamp < end_date
+        )
         session = self.get_session()
         try:
             return session.query(SolarGeneration).filter(
                 SolarGeneration.timestamp >= start_date,
-                SolarGeneration.timestamp <= end_date
+                end_filter,
             ).order_by(SolarGeneration.timestamp).all()
         finally:
             session.close()

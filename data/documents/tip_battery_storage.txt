@@ -1,0 +1,16 @@
+Home battery storage for solar power and backup
+
+Charging and discharging a home battery
+A battery can store excess solar generation during the day and supply electricity after sunset. Charge from surplus solar when household demand is low. Consider discharging during a higher-price period if the home needs power and the configured backup reserve allows it. Account for charging and discharging losses when estimating savings, along with the utility's import and export rates.
+
+Usable energy in kWh and output power in kW
+Usable capacity in kilowatt-hours (kWh) is the energy the battery can deliver under its operating limits. The output rating in kilowatts (kW) limits how much power it can supply at one time. If 4 kWh are available above the reserve and the load stays at 1 kW, the simple runtime estimate is four hours before additional losses or power changes. Check whether the battery can also handle the appliances' startup power.
+
+Backup reserve and supported loads
+Set the reserve according to how much energy the household wants to retain for an outage. A higher reserve leaves less energy for daily rate shifting. Check which circuits the installed system backs up and whether the inverter supports operation when grid power is unavailable. Use the expected loads and the available kWh to estimate backup duration.
+
+Sources
+U.S. Department of Energy, Solar Integration and Storage Basics
+https://www.energy.gov/cmei/systems/solar-integration-solar-energy-and-storage-basics
+U.S. Department of Energy, Solar and Resilience Basics
+https://www.energy.gov/cmei/systems/solar-and-resilience-basics

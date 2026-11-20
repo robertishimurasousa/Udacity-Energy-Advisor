@@ -1,0 +1,16 @@
+Residential renewable energy and rooftop solar
+
+Rooftop photovoltaic generation
+Solar photovoltaic panels produce electricity during daylight. Clouds, shading from nearby trees or buildings, roof orientation, and the season change the output profile. Use the home's recent solar generation data and the weather forecast to estimate when production will be high. Check the actual generation history if the roof gets morning or afternoon shade.
+
+Using surplus solar power at home
+Compare solar production and regular household consumption for the same hour. The surplus is the amount left after the usual loads use their share. Schedule a flexible load, such as a dishwasher or EV charger, during a period with enough expected surplus. Stagger multiple loads when their combined demand is likely to exceed generation. Check the length of the whole appliance cycle when comparing candidate windows.
+
+Costs and renewable options
+The value of using an extra kWh of rooftop solar at home depends on the avoided import rate and any credit the utility would have paid for exporting that kWh. Compare both before estimating savings. If the roof is unsuitable, community solar may be available. Check local program terms and bill credits when comparing it with rooftop solar.
+
+Sources
+U.S. Department of Energy, Solar Integration and Storage Basics
+https://www.energy.gov/cmei/systems/solar-integration-solar-energy-and-storage-basics
+U.S. Department of Energy, Will I Save Money with Solar Energy?
+https://www.energy.gov/articles/will-i-save-money-solar-energy
