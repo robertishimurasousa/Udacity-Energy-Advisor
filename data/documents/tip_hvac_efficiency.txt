@@ -1,0 +1,16 @@
+Home heating, ventilation, and air conditioning (HVAC)
+
+Filters and airflow
+Check the air filter on the schedule in the equipment manual and clean or replace it as directed. Check it more often during heavy use or if the home is dusty. Use a filter the system supports and keep supply vents and return grilles clear of furniture. Blocked airflow is a useful first check when an air conditioner runs for a long time or rooms cool unevenly.
+
+Thermostat schedules and heat pumps
+Set a comfortable occupied temperature. For conventional heating or cooling, consider a moderate adjustment during predictable periods when nobody is home. Verify that the house returns to a comfortable temperature before people need it. For a heat pump with auxiliary electric resistance heat, keep changes small and use a compatible thermostat. A large heating setback can call for auxiliary heat during recovery.
+
+Maintenance and measurement
+Have a qualified HVAC technician inspect persistent short cycling, poor cooling after a filter change, or frequent auxiliary heat. Follow the manufacturer's maintenance schedule for service. To see whether a schedule change helped, compare HVAC energy in kWh on days with similar weather and occupancy. Use the actual electricity tariff for a cost estimate.
+
+Sources
+U.S. Department of Energy, Consumer Guide to Home Heating and Cooling
+https://www.energy.gov/sites/default/files/2021-08/ES-HomeHeatingandCooling_081221.pdf
+U.S. Department of Energy, Energy Saver guide
+https://www.energy.gov/sites/default/files/2022-08/energy-saver-guide-2022.pdf

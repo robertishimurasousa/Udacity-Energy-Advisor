@@ -1,0 +1,14 @@
+Home automation for energy management
+
+Occupancy sensors and smart plugs
+Use occupancy sensors to turn off lights in rooms that stay empty. Set a delay or manual override for rooms where a person may sit still. A smart plug or power strip with energy monitoring can measure a compatible device's standby use over several days. Compare the measured energy before and after applying an automation rule. Leave essential or continuously powered devices on their intended supply.
+
+Schedules based on time-of-use electricity rates
+Get the utility's current peak and off-peak hours, including any weekend or seasonal changes. Use the built-in delay start or manufacturer-supported scheduling for a compatible dishwasher or washing machine. Set the start time so the cycle can finish inside the lower-rate window and meets the household's deadline. Use a charger manufacturer's scheduler for electric vehicle charging.
+
+Example of a scheduling rule
+If off-peak pricing starts at 10 p.m. and a dishwasher cycle lasts two hours, schedule the compatible appliance to start at 10 p.m. if the household can run it at that time. Compare the same cycle's kWh multiplied by each tariff to estimate the change in cost. Moving a cycle to a lower rate can reduce its cost while the cycle uses the same amount of energy.
+
+Source
+ENERGY STAR, Smart Home Energy Management Systems Key Product Criteria
+https://www.energystar.gov/products/shems_key_product_criteria

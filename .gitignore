@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.venv/
+.vscode/
+.DS_Store
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+data/energy_data.db
+data/energy_data.db-*
+data/vectorstore/
