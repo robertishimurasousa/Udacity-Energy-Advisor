@@ -10,4 +10,6 @@ __pycache__/
 .pytest_cache/
 data/energy_data.db
 data/energy_data.db-*
+data/energy_tips.sqlite3
+data/energy_tips.sqlite3-*
 data/vectorstore/

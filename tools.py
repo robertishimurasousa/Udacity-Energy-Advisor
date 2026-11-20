@@ -2,10 +2,8 @@
 Tools for EcoHome Energy Advisor Agent
 """
 import os
-import json
 import random
 from datetime import datetime, timedelta
-from hashlib import sha256
 from itertools import groupby
 from math import cos, pi, sin
 from pathlib import Path
@@ -13,10 +11,9 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_core.tools import tool
-from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from energy_tips import EnergyTipsIndex
 from models.energy import DatabaseManager
 
 # Initialize database manager
@@ -294,39 +291,36 @@ def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
         return {"error": f"Failed to get recent energy summary: {str(e)}"}
 
 
-ENERGY_TIPS_COLLECTION = "ecohome_energy_tips"
-ENERGY_TIPS_INDEX_DIR = "data/vectorstore"
+ENERGY_TIPS_INDEX_PATH = Path("data/energy_tips.sqlite3")
 
 
 def load_energy_tip_documents() -> list[Document]:
     """Load the plain-text energy guides with their source paths."""
-    documents = []
-    for path in sorted(Path("data/documents").glob("*.txt")):
-        documents.extend(TextLoader(str(path), encoding="utf-8").load())
+    documents = [
+        Document(page_content=path.read_text(encoding="utf-8"), metadata={"source": path.as_posix()})
+        for path in sorted(Path("data/documents").glob("*.txt"))
+    ]
     if not documents:
         raise ValueError("No energy guides found in data/documents.")
     return documents
 
 
-def index_energy_tip_chunks(vectorstore: Chroma, chunks: list[Document]) -> None:
-    """Reuse unchanged embeddings and replace chunks from edited guides."""
-    if not chunks:
-        raise ValueError("No energy guide text to index.")
+def split_energy_tip_documents(documents: list[Document]) -> list[Document]:
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    return splitter.split_documents(documents)
 
-    chunks_by_id = {}
-    for chunk in chunks:
-        key = json.dumps([chunk.metadata["source"], chunk.page_content])
-        chunks_by_id[sha256(key.encode("utf-8")).hexdigest()] = chunk
 
-    indexed_ids = set(vectorstore.get(include=[])["ids"])
-    new_ids = [chunk_id for chunk_id in chunks_by_id if chunk_id not in indexed_ids]
-    if new_ids:
-        new_chunks = [chunks_by_id[chunk_id] for chunk_id in new_ids]
-        vectorstore.add_documents(new_chunks, ids=new_ids)
-
-    obsolete_ids = sorted(indexed_ids.difference(chunks_by_id))
-    if obsolete_ids:
-        vectorstore.delete(ids=obsolete_ids)
+def open_energy_tips_index() -> EnergyTipsIndex:
+    load_dotenv()
+    api_key = os.getenv("VOCAREUM_API_KEY", "").strip()
+    if not api_key:
+        raise ValueError("Set VOCAREUM_API_KEY to use the Vocareum embeddings service.")
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-ada-002",
+        base_url="https://openai.vocareum.com/v1",
+        api_key=api_key,
+    )
+    return EnergyTipsIndex(ENERGY_TIPS_INDEX_PATH, embeddings)
 
 
 @tool
@@ -342,29 +336,12 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
         Dict[str, Any]: Relevant energy tips and best practices
     """
     try:
-        load_dotenv()
-        api_key = os.getenv("VOCAREUM_API_KEY", "").strip()
-        if not api_key:
-            raise ValueError("Set VOCAREUM_API_KEY to use the Vocareum embeddings service.")
-
-        embeddings = OpenAIEmbeddings(
-            base_url="https://openai.vocareum.com/v1",
-            api_key=api_key,
-        )
-
-        vectorstore = Chroma(
-            collection_name=ENERGY_TIPS_COLLECTION,
-            persist_directory=ENERGY_TIPS_INDEX_DIR,
-            embedding_function=embeddings,
-        )
-        if not vectorstore.get(limit=1, include=[])["ids"]:
-            documents = load_energy_tip_documents()
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-            chunks = text_splitter.split_documents(documents)
-            index_energy_tip_chunks(vectorstore, chunks)
+        vectorstore = open_energy_tips_index()
+        if not vectorstore.sources():
+            vectorstore.index(split_energy_tip_documents(load_energy_tip_documents()))
         
         # Search for relevant documents
-        docs = vectorstore.similarity_search(query, k=max_results)
+        docs = vectorstore.search(query, limit=max_results)
         
         results = {
             "query": query,
