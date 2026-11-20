@@ -1,8 +1,7 @@
 import os
 from dotenv import load_dotenv
+from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage
-from langgraph.prebuilt import create_react_agent
 from tools import TOOL_KIT
 
 load_dotenv()
@@ -20,23 +19,23 @@ class Agent:
         )
 
         # Create the Energy Advisor agent
-        self.graph = create_react_agent(
+        self.graph = create_agent(
             name="energy_advisor",
-            prompt=SystemMessage(content=instructions),
+            system_prompt=instructions,
             model=llm,
             tools=TOOL_KIT,
         )
 
-    def invoke(self, question: str, context:str=None) -> str:
+    def invoke(self, question: str, context: str | None = None) -> dict:
         """
         Ask the Energy Advisor a question about energy optimization.
         
         Args:
             question (str): The user's question about energy optimization
-            location (str): Location for weather and pricing data
+            context (str): Optional household and scenario context
         
         Returns:
-            str: The advisor's response with recommendations
+            dict: The graph state with tool calls, results, and the final answer
         """
         
         messages = []

@@ -4,7 +4,7 @@
 
 **Course 2 of 3** · [Building AI Agents with LangGraph](https://www.udacity.com/course/building-ai-agents-with-langgraph--cd14640)
 
-EcoHome Energy Advisor is a LangGraph agent that helps a household decide when to charge an EV, run appliances, or use rooftop solar. It combines household history from SQLite, simulated weather and electricity rates, and energy-saving guides retrieved from Chroma. Recommendations can include cost, payback, and avoided-emissions estimates.
+EcoHome Energy Advisor is a LangGraph agent that helps a household decide when to charge an EV, run appliances, or use rooftop solar. It combines household history from SQLite, simulated weather and electricity rates, and energy-saving guides retrieved from SQLite with sqlite-vec. Recommendations can include cost, payback, and avoided-emissions estimates.
 
 Open the [evaluation notebook](03_run_and_evaluate.ipynb) to inspect the saved responses, tool calls, and score report. The [quick start](#quick-start) reproduces the full workflow with a course-provided Vocareum credential.
 
@@ -23,13 +23,14 @@ In the saved dishwasher scenario, the agent multiplies 1.2 kWh by the difference
 
 ### 1. Clone and install
 
-Use Git and Python 3.11. The project was tested with Python 3.11.18. Run the commands and notebooks from the repository root so their relative data paths resolve correctly.
+Use Git and Python 3.11 with SQLite extension loading enabled. The project was tested with Python 3.11.18. Run the commands and notebooks from the repository root so their relative data paths resolve correctly.
 
 ```bash
 git clone https://github.com/robertishimurasousa/Udacity-Energy-Advisor.git
 cd Udacity-Energy-Advisor
 python3.11 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip "setuptools>=84.1.0"
 python -m pip install -r requirements.txt
 cp -n .env.example .env
 ```
@@ -50,7 +51,7 @@ Open the notebooks in a Jupyter editor, select the `.venv` Python kernel, and ru
 | [02 · RAG setup](02_rag_setup.ipynb) | Seven guides become 14 indexed chunks. Five queries verify that the corresponding new guide can be retrieved with its source path. |
 | [03 · Agent and evaluation](03_run_and_evaluate.ipynb) | An EV example shows the agent loop. Eleven scenarios record the executed tools, arguments, results, and final answers. The final report scores this run and lists unmet checks. |
 
-The first run builds `data/energy_data.db` and `data/vectorstore/`. Both are generated locally. The database seed preserves existing rows, and the RAG notebook reuses embeddings for unchanged chunks. Use a separate checkout to regenerate the dataset for a fresh calendar window.
+The first run builds `data/energy_data.db` and `data/energy_tips.sqlite3`. Both are generated locally. The database seed preserves existing rows, and the RAG notebook reuses embeddings for unchanged chunks. Use a separate checkout to regenerate the dataset for a fresh calendar window. Run notebook 02 after upgrading from the Chroma-backed version to rebuild the vector index from the source guides.
 
 ## Dataset and knowledge base
 
@@ -63,7 +64,7 @@ The SQLite dataset describes a synthetic household over 30 complete calendar day
 
 The usage seed assigns historical costs using its own simplified rates. The forward-looking tariff tool supplies separate simulated rates of USD 0.28/kWh from 06:00 up to 22:00 and USD 0.12/kWh outside that interval. The forecast is simulated by location and calendar date. Irradiance describes available sunlight in W/m². Household generation is measured in kWh.
 
-The [knowledge base](data/documents/) contains the two starter guides and five guides on HVAC, automation, residential renewables, seasonal energy, and batteries. The RAG pipeline loads the text files, splits them into overlapping chunks, embeds them through Vocareum, and stores them in the same Chroma collection that `search_energy_tips` queries. Each retrieved result carries its source path for citations.
+The [knowledge base](data/documents/) contains the two starter guides and five guides on HVAC, automation, residential renewables, seasonal energy, and batteries. The RAG pipeline loads the text files, splits them into overlapping chunks, embeds them through Vocareum, and stores the vectors in the SQLite index queried by `search_energy_tips`. Each retrieved result carries its source path for citations.
 
 ## Architecture
 
@@ -96,16 +97,16 @@ The final report and saved tool calls are in the evaluation notebook. Its histor
 
 ### Saved validation run
 
-The saved outputs were produced in a fresh workspace with a new virtual environment and dataset. All nine local tests passed, and all eleven scenarios returned their required tools and received response scores. Nine scenarios passed all tool checks, and eight met all four response criteria. The report records the remaining findings, including an extra weather call for a tariff-only question and an extra investment calculation with a different horizon. [Evaluation report](03_run_and_evaluate.ipynb)
+The saved outputs were produced in a fresh workspace with a new virtual environment and dataset. All ten local tests passed, and all eleven scenarios returned their required tools and received response scores. Ten scenarios passed all tool checks, and eight responses met all four criteria. The report records the remaining findings, including an extra weather call for a tariff-only question. [Evaluation report](03_run_and_evaluate.ipynb)
 
 ## Repository layout
 
 | Location | Purpose |
 | --- | --- |
 | [Notebooks 01–03](#3-run-the-notebooks) | Database setup, RAG setup, and agent evaluation with saved outputs |
-| [`agent.py`](agent.py) and [`tools.py`](tools.py) | LangGraph agent and its tools |
+| [`agent.py`](agent.py), [`tools.py`](tools.py), and [`energy_tips.py`](energy_tips.py) | LangGraph agent, tools, and SQLite vector index |
 | [`models/`](models/) and [`data/documents/`](data/documents/) | SQLite models and the seven source guides |
 | [`tests/`](tests/) | Local checks for tariffs, solar data, savings, and evaluation |
 | [`requirements.txt`](requirements.txt) and [`.env.example`](.env.example) | Python dependencies and the credential template |
 
-The submission lives at the repository root. The notebooks rebuild the SQLite database and Chroma index when run from a fresh checkout. Local credentials and generated stores are excluded by [`.gitignore`](.gitignore).
+The submission lives at the repository root. The notebooks rebuild the SQLite data and vector stores when run from a fresh checkout. Local credentials and generated stores are excluded by [`.gitignore`](.gitignore).
