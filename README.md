@@ -49,7 +49,7 @@ Open the notebooks in a Jupyter editor, select the `.venv` Python kernel, and ru
 | --- | --- |
 | [01 · Database setup](01_db_setup.ipynb) | SQLite creates the usage and solar tables and seeds 2,160 usage rows and 390 solar rows. The final cells inspect the data through Python and through the agent's database tools. |
 | [02 · RAG setup](02_rag_setup.ipynb) | Seven guides become 14 indexed chunks. Five queries verify that the corresponding new guide can be retrieved with its source path. |
-| [03 · Agent and evaluation](03_run_and_evaluate.ipynb) | An EV example shows the agent loop. Eleven scenarios record the executed tools, arguments, results, and final answers. The final report scores this run and lists unmet checks. |
+| [03 · Agent and evaluation](03_run_and_evaluate.ipynb) | An EV example shows the agent loop. Eleven scenarios save tool names, arguments, final answers, and evaluation findings in the notebook output. The complete tool results are available in `test_results` when the notebook runs. |
 
 The first run builds `data/energy_data.db` and `data/energy_tips.sqlite3`. Both are generated locally. The database seed preserves existing rows, and the RAG notebook reuses embeddings for unchanged chunks. Use a separate checkout to regenerate the dataset for a fresh calendar window. Run notebook 02 after upgrading from the Chroma-backed version to rebuild the vector index from the source guides.
 
@@ -91,13 +91,21 @@ python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-The notebook compares selected tool results with independent SQLite queries and scenario inputs. `evaluate_response()` scores accuracy, relevance, completeness, and usefulness from 0 to 2 using observable checks. `evaluate_tool_usage()` reports coverage and selection appropriateness, with separate findings for arguments and returned data. The report shows which checks passed or need attention. The checks complement reading the answer and tool trace, especially for recommendations that need judgment.
+The notebook compares selected tool results with independent SQLite queries and scenario inputs. All six evaluation metrics use a 0–1 scale.
+
+| Metric | What earns credit |
+| --- | --- |
+| Response accuracy, relevance, completeness, and usefulness | Each criterion earns 1.0 when all of its checks pass, 0.5 when some pass, and 0.0 when none pass. |
+| Tool appropriateness | The share of calls that used a relevant tool with the expected arguments. Repeating a call after it returned usable evidence lowers the score. |
+| Tool completeness | The share of required tools that returned usable evidence. Results must meet any reference checks for values and sources. |
+
+The [controlled evaluator tests](tests/test_tool_evaluation.py) use synthetic LangChain message traces to verify scoring without a provider call. The report includes the results from the live scenarios and explains missing, failed, redundant, or incorrect calls by ID. Review the response alongside its checks when a recommendation needs judgment.
 
 The final report and saved tool calls are in the evaluation notebook. Its historical comparison sections describe earlier runs and may refer to calendar dates or values generated in a previous dataset.
 
 ### Saved validation run
 
-The saved outputs were produced in a fresh workspace with a new virtual environment and dataset. All ten local tests passed, and all eleven scenarios returned their required tools and received response scores. Ten scenarios passed all tool checks, and eight responses met all four criteria. The report records the remaining findings, including an extra weather call for a tariff-only question. [Evaluation report](03_run_and_evaluate.ipynb)
+The saved run used an isolated Python environment, a fresh dataset, and Vocareum. All 27 local tests passed, including 19 controlled tests of the evaluators. All 11 scenarios obtained the required tool evidence, with mean tool completeness of 1.00 and mean tool appropriateness of 0.91. Nine scenarios passed every tool check, and eight responses met all four response criteria. The report shows the extra weather call on the dishwasher question and the additional ROI calculation with the wrong horizon. [Evaluation report](03_run_and_evaluate.ipynb)
 
 ## Repository layout
 
@@ -108,5 +116,6 @@ The saved outputs were produced in a fresh workspace with a new virtual environm
 | [`models/`](models/) and [`data/documents/`](data/documents/) | SQLite models and the seven source guides |
 | [`tests/`](tests/) | Local checks for tariffs, solar data, savings, and evaluation |
 | [`requirements.txt`](requirements.txt) and [`.env.example`](.env.example) | Python dependencies and the credential template |
+| [`SECURITY.md`](SECURITY.md) | Supported revision and private vulnerability reporting |
 
 The submission lives at the repository root. The notebooks rebuild the SQLite data and vector stores when run from a fresh checkout. Local credentials and generated stores are excluded by [`.gitignore`](.gitignore).
