@@ -119,3 +119,9 @@ The saved run used an isolated Python environment, a fresh dataset, and Vocareum
 | [`SECURITY.md`](SECURITY.md) | Supported revision and private vulnerability reporting |
 
 The submission lives at the repository root. The notebooks rebuild the SQLite data and vector stores when run from a fresh checkout. Local credentials and generated stores are excluded by [`.gitignore`](.gitignore).
+
+## Starter material and attribution
+
+The notebooks, agent scaffold, database models, and two original energy guides came from [Udacity's EcoHome Energy Advisor starter](https://github.com/udacity/cd14640-building-agents-public/tree/45790a55e18c7ad42b7e206dd143e63e5069a48f/project/ecohome_starter). This submission adds the completed tools and agent evaluation, five energy guides, and local tests.
+
+The original [Udacity license notice](LICENSE.md) accompanies the course material. Its CC BY-NC-ND 4.0 terms apply to Udacity educational content marked with that license.
